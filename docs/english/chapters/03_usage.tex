@@ -1,0 +1,50 @@
+\chapter{Everyday use and guided practice}
+
+For a multi-step task, give the full request once. The agent records a temporary work checklist, executes its steps and continues automatically after empty or intermediate replies. File writes still need YES. After the run, /plan shows the last checklist. The work checklist is separate from the persistent personal tasks managed by /task and /tasks.
+
+For example, request all three paths in one message: myportfolio/index.html, myportfolio/style.css and myportfolio/script.js. The agent should write each, review the HTML references and finish only after all steps and files exist. A declined write stops the run and keeps earlier approved changes. The model is responsible for the meaning and quality of the steps; the code checks pending steps and file existence/size, not visual design or execution.
+
+The terminal interface is English, and model replies default to English even if your request is written in Persian or another language. For a different reply language, explicitly request it, for example: "Explain this in Persian." This avoids right-to-left display problems in the terminal while keeping optional multilingual answers available.
+
+Start with /help and /status. Commands beginning with a slash are handled by the application directly. Ordinary language is sent to the model, which may request tools. Thus /task creates a task without an API request; “please add a task” first calls the model, then requires review of its tool request.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+/help
+/status
+/remember I prefer practical Python examples
+/memory
+/update I prefer practical Python examples | I prefer short Python examples
+\end{Verbatim}
+
+A saved fact should be short, stable, and suitable to share with the chosen model service. Duplicate facts are ignored case-insensitively. An update must match the exact old text, apart from case and surrounding whitespace; it is not a semantic search. The OLD | NEW syntax uses the first pipe as the separator. Facts must not contain keys or passwords. The model only saves facts when you explicitly request it and when you approve the mutation.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+/task Read the Python functions tutorial
+/tasks
+/done 1
+/delete-task 1
+\end{Verbatim}
+
+Replace the sample 1 with an ID from /tasks. Completed tasks remain visible with their status. Deleting a task is different from completing it: completion keeps the record, deletion removes it after YES. Creating a new task after deleting the largest ID still uses the next unused ID. This prevents an old conversational reference from suddenly pointing to a different task.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+/forget I prefer short Python examples
+/forget-all
+/reset
+/exit
+\end{Verbatim}
+
+The first two commands request deletion and show a confirmation. Enter means cancel. Reset removes in-process conversation history, not saved facts or tasks. Exit closes the program. A backup of the previous state can still contain a deleted fact; to remove that local backup too, close the program and handle the backup deliberately in the editor/file manager. Do not confuse deletion of active state with erasure from every earlier local copy.
+
+For a quick single response, use --ask. A one-shot invocation automatically denies model-requested mutations because it cannot safely offer interactive review. Direct non-destructive slash commands still work. Never put a real key in a command argument or prompt.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe run_agent.py --ask 'Explain Python list comprehensions'
+.\.venv\Scripts\python.exe run_agent.py --ask '/status'
+.\.venv\Scripts\python.exe run_agent.py --no-memory
+\end{Verbatim}
+
+No-memory mode disables saved fact/task tools and does not include saved preferences in model context. It still has in-process conversational context until reset or exit. Conversation transcripts are not written to disk. Up to ten complete recent turns are kept, with a size budget that discards older complete turns. Very long investigations should be split into focused requests.
+
+An easy learning exercise is to create one synthetic fact and task, restart the program, and check /memory and /tasks again. Their survival demonstrates persistent JSON state. Reset alone does not remove them. Remove only those synthetic records afterward, using their exact text or IDs.
+

@@ -1,0 +1,5 @@
+# Optional PDF validation dependencies, not required to run the agent.
+pypdf>=6,<7
+Pillow>=11,<13
+PyMuPDF>=1.26,<2
+fonttools>=4,<5

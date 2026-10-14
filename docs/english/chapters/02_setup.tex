@@ -1,0 +1,58 @@
+\chapter{Install and configure step by step}
+
+Use Python 3.11 or newer. Open PowerShell in the folder containing run\_agent.py. A virtual environment is a separate Python installation area for this project's packages; it avoids mixing the project's dependencies with unrelated global tools.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+python --version
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+\end{Verbatim}
+
+The explicit interpreter path is important: packages must be installed into the same interpreter used to launch the program. Activation is optional. If PowerShell blocks Activate.ps1, use the explicit interpreter path shown here; no execution-policy change is necessary. In VS Code, select the project's .venv interpreter if you use the Run button.
+
+If a fresh checkout has no .env, copy the example once. Do not run this command over an existing .env because it would replace the local configuration. Edit it locally in your editor; do not print, screenshot, or paste the key.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+Copy-Item .env.example .env
+\end{Verbatim}
+
+The canonical credential variable is OLLAMA\_API\_KEY. OLLAMA\_FREE\_API\_KEY remains supported so the current user's file need not change. Operating-system environment variables override .env values. If both key names exist, the canonical name is preferred. Config.load reads the project .env using dotenv\_values rather than injecting values into the process environment. Config's API-key field is excluded from its string representation.
+
+The following example lists only public configuration, without a credential value:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+OLLAMA_MODEL=gemma4:31b
+OLLAMA_BASE_URL=https://ollama.com/v1
+AGENT_TIMEOUT=60
+\end{Verbatim}
+
+Then check configuration and start the interactive program:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe run_agent.py --check
+.\.venv\Scripts\python.exe run_agent.py
+\end{Verbatim}
+
+The check prints the model, endpoint, workspace, state directory and item counts. It does not call Ollama, so it proves only that local setup is valid. First normal launch may copy the earlier root memory.json and tasks.json into data. Repeated launches do not overwrite newer state with old files. Existing task records keep their IDs; a next\_id counter is added so future IDs do not get reused.
+
+To use another code project, pass its existing directory. All file tools remain inside that directory; saved personal state still lives under this agent project's data directory.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe run_agent.py --workspace 'E:\projects\demo'
+\end{Verbatim}
+
+For local inference, install Ollama separately and choose a model that fits the machine. An example setup is below. If Ollama's desktop server already runs, keep it running; otherwise start the local server in a separate terminal. These commands are instructions, not evidence that a model was installed during this session.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+ollama pull qwen3:8b
+ollama serve
+\end{Verbatim}
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+OLLAMA_BASE_URL=http://localhost:11434/v1
+OLLAMA_MODEL=qwen3:8b
+\end{Verbatim}
+
+No cloud key is required for that endpoint. Even if a cloud key remains in .env, the local SDK receives the dummy value ollama instead. Smaller local models may follow tool instructions less reliably; test a simple chat and task before relying on them. The only permitted API endpoints are the exact Ollama cloud URL and an HTTP loopback /v1 endpoint. An arbitrary remote base URL is rejected to prevent accidentally sending the cloud key elsewhere.
+
+\cite{ollama-api,ollama-pricing}

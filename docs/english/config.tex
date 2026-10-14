@@ -1,0 +1,50 @@
+\usepackage[a4paper,left=23mm,right=23mm,top=22mm,bottom=20mm,includeheadfoot,headheight=15pt,footskip=58pt]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{176B78}
+\usepackage{setspace}
+\usepackage{fvextra}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{xurl}
+\usepackage[unicode,colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent]{hyperref}
+\IfFileExists{../fonts/DejaVuSansMono.ttf}{
+  \setmonofont{DejaVuSansMono.ttf}[Path=../fonts/]
+}{\setmonofont{Courier New}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\emergencystretch=3em
+\DefineVerbatimEnvironment{Verbatim}{Verbatim}{breaklines,breakanywhere,fontsize=\small}
+\fvset{codes={\catcode"200C=9\catcode"200F=9}}
+\IfFileExists{../fonts/NotoSans-Regular.ttf}{
+  \setmainfont{NotoSans-Regular.ttf}[Path=../fonts/,BoldFont=NotoSans-Bold.ttf]
+}{\IfFontExistsTF{FreeSans}{\setmainfont{FreeSans}}{
+  \IfFontExistsTF{Noto Sans}{\setmainfont{Noto Sans}}{
+    \IfFontExistsTF{DejaVu Sans}{\setmainfont{DejaVu Sans}}{\setmainfont{TeX Gyre Heros}}}}}
+\setstretch{1.25}
+\newcommand{\AuthorName}{Alireza Khajehvandi}
+\newcommand{\ReportTitle}{Personal Agent for Coding and Research}
+\newcommand{\ContactHeading}{Alireza Khajehvandi online}
+\newcommand{\PageLabel}{Page}
+\titleformat{\chapter}[display]{\color{accent}\Large\bfseries}{\thechapter}{4pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+\titleformat{\section}{\color{accent}\large\bfseries}{\thesection}{0.5em}{}
+\newcommand{\ContactA}{\href{https://alirezaaies.github.io/}{Portfolio}}
+\newcommand{\ContactB}{\href{https://github.com/alirezaaies}{GitHub}}
+\newcommand{\ContactC}{\href{https://www.linkedin.com/in/alirezakhajehvandi}{LinkedIn}}
+\newcommand{\ContactD}{\href{https://www.youtube.com/@AlirezaAIES}{YouTube}}
+\newcommand{\ContactE}{\href{https://t.me/AlirezaAIES}{Telegram}}
+\newcommand{\ContactF}{\href{https://www.instagram.com/alireza.aies}{Instagram}}
+\newcommand{\ContactRows}{
+\ContactA\quad\ContactB\quad\ContactC\\
+\ContactD\quad\ContactE\quad\ContactF}
+\newcommand{\ReportFooter}{\parbox{\textwidth}{\centering\fontsize{9}{11}\selectfont
+\ContactHeading\\\ContactRows\\\PageLabel\ \thepage}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\fontsize{8}{10}\selectfont\ReportTitle\quad|\quad\AuthorName}
+\fancyfoot[C]{\ReportFooter}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\ReportFooter}\renewcommand{\headrulewidth}{0pt}}
+\hypersetup{pdftitle={\ReportTitle},pdfauthor={\AuthorName}}

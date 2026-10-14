@@ -1,0 +1,35 @@
+\chapter{Understand and extend the implementation}
+
+The request path is run\_agent.py \(\rightarrow\) cli.main \(\rightarrow\) Config/Store/Toolbox \(\rightarrow\) Agent.ask \(\rightarrow\) Ollama \(\rightarrow\) tool validation/execution \(\rightarrow\) tool result \(\rightarrow\) final answer. The model proposes function names and JSON arguments. Toolbox decides whether a name is allowed, whether every expected argument is present and correctly typed, and whether the user has approved a mutation. This separation is the difference between a text chatbot and a tool-using agent.
+
+Configuration belongs in config.py. The dataclass groups endpoint, model, project and workspace paths, request timeout, tool-round limit and history limit. The secret guard collects known credential values from configuration and rejects their appearance in user input or state writes. It also redacts common credential assignments in file/model output. It is a practical filter, not a universal detector of unknown, encoded or split secrets.
+
+Storage belongs in storage.py. Every mutation acquires an exclusive lock file, loads and validates current JSON, operates on a copy, validates again, writes a same-directory temporary file, flushes it and atomically replaces the active file. The previous valid state is copied into a local .json.bak file before replacement. If malformed JSON or an invalid schema is found, mutation stops and the original remains. Backups are a recovery aid, not a historical database or encrypted vault.
+
+State example, containing only synthetic data:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+{
+  "tasks": [{"id": 1, "title": "Practice Python", "completed": false}],
+  "next_id": 2
+}
+\end{Verbatim}
+
+Toolbox.add registers a description, a mapping of argument names to JSON types, the Python implementation and a mutation-approval flag. The model's schemas are generated from that same registry so schema and dispatch stay aligned. Additional/unknown fields and booleans passed as integer IDs are rejected. The default approval callback denies changes, making one-shot and test behavior explicit.
+
+ProjectFiles isolates file listing, reading, diff creation and atomic writes. Web networking is in web.py; the chat client carries the API key only to the configured inference endpoint. Webpage fetching uses a separate client/pool and never inherits Ollama authorization headers. API failures report a short category/status rather than dumping request headers or raw response bodies.
+
+Agent.ask creates a turn, retrieves recent complete turns and optional saved preferences, calls chat completions, and records the assistant response. Every tool\_call\_id gets a corresponding tool result. Invalid or truncated JSON becomes a tool error that the model can repair. Empty replies and text-only progress during a plan trigger a continuation instruction instead of ending the request. Ordinary questions can still return a normal answer without a plan.
+
+File-writing tasks use plan\_work, complete\_step and finish\_work. The temporary WorkPlan in work.py records the full checklist and output paths, prevents dropping earlier obligations and rejects finishing with pending steps or missing/empty files. pause\_work reports an actual blocker. A write must be listed in the plan; approval and all existing path/secret controls still apply. The final summary comes from a successful finish\_work, and is recorded in conversation history.
+
+The default budget is 30 tool rounds followed, if needed, by one tool-free summary that clearly reports the task paused. Each round permits at most six tool executions. Three responses without tool progress or three identical failed tool requests stop the run. A declined mutation skips later actions in the same batch. SDK automatic network retries remain disabled, since network failure after a write can have an uncertain outcome. API failures do not claim rollback or completion.
+
+Public settings AGENT\_MAX\_ROUNDS (1-100, default 30) and AGENT\_MAX\_OUTPUT\_TOKENS (256-32768, default 8192) control the request and response caps. The larger output cap allows complete CSS/JS tool arguments; it is a ceiling, not the amount always generated. Larger caps can use more cloud credits. No real key value is needed in a task prompt or report.
+
+If a tool succeeded and a later model request failed, the state change still exists. The history keeps confirmed tool results. Before retrying a mutation, inspect /memory, /tasks or git diff. The model's missing final sentence does not mean the preceding action was rolled back. An interruption leaves an explicit unconfirmed result for unfinished tool messages, instead of an invalid conversation replay.
+
+To add a tool, first write a bounded Python function with a clear return result. Register it through Toolbox.add, choose mutation approval when applicable, and write a regression test for its real failure modes. Do not add a shell execution tool merely to make the assistant look more autonomous. When a new tool requires an account, credential or broad filesystem access, define the scope in code and explain its data flow before enabling it.
+
+The report appendix includes complete maintained code, tests and scripts directly from the repository. Use the chapter explanation to follow responsibility boundaries, then read each source listing. Editing the source and rebuilding the report updates the appendix automatically; editing a report chapter remains a separate documentation task.
+

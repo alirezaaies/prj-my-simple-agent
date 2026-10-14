@@ -151,6 +151,24 @@ activemq-data/
 
 # Environments
 .env
+.env.*
+!.env.example
+data/
+memory.json
+tasks.json
+*.json.bak
+docs/**/images/
+docs/fonts/*
+!docs/fonts/README.md
+docs/**/*.pdf
+docs/**/*.aux
+docs/**/*.bbl
+docs/**/*.blg
+docs/**/*.toc
+docs/**/*.out
+docs/**/*.synctex.gz
+tmp/
+requirements-local.txt
 .envrc
 .venv
 env/

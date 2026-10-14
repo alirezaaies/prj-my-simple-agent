@@ -1,0 +1,132 @@
+\chapter{نصب و تنظیم قدم‌به‌قدم}
+
+از 
+\lr{Python}
+ نسخهٔ ۳٫۱۱ یا جدیدتر استفاده کنید. 
+\lr{PowerShell}
+ را در پوشه‌ای باز کنید که 
+\lr{run\_agent.py}
+ داخل آن است. محیط مجازی محل جداگانه‌ای برای کتابخانه‌های همین پروژه است تا بسته‌های پروژه با ابزارهای دیگر سیستم مخلوط نشوند.
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+python --version
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+\end{Verbatim}
+\end{LTR}
+
+مسیر صریح مفسر مهم است: کتابخانه باید در همان 
+\lr{Python}
+ نصب شود که برنامه را اجرا می‌کند. فعال‌سازی محیط اجباری نیست. اگر 
+\lr{PowerShell}
+ اجرای 
+\lr{Activate.ps1}
+ را مسدود کرد، همین مسیر صریح را استفاده کنید؛ تغییر سیاست اجرای سیستم لازم نیست. برای دکمهٔ 
+\lr{Run}
+ در 
+\lr{VS Code}
+ هم مفسر .
+\lr{venv}
+ پروژه را انتخاب کنید.
+
+فقط در نصب تازه‌ای که .
+\lr{env}
+ ندارد، نمونه را کپی کنید. این دستور را روی فایل موجود اجرا نکنید، چون تنظیم قبلی را جایگزین می‌کند. کلید را با ویرایشگر داخل فایل محلی وارد کنید؛ آن را چاپ یا اسکرین‌شات نکنید و در گفتگو نفرستید.
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+Copy-Item .env.example .env
+\end{Verbatim}
+\end{LTR}
+
+نام استاندارد کلید 
+\lr{OLLAMA\_API\_KEY}
+ است. نام 
+\lr{OLLAMA\_FREE\_API\_KEY}
+ هم پشتیبانی می‌شود و فایل فعلی شما لازم نیست عوض شود. متغیرهای محیط سیستم نسبت به .
+\lr{env}
+ اولویت دارند. اگر هر دو نام کلید موجود باشند، نام استاندارد اولویت دارد. تابع 
+\lr{Config.load}
+ فایل را با 
+\lr{dotenv\_values}
+ می‌خواند و مقدارها را به محیط پردازش تزریق نمی‌کند. فیلد کلید در نمایش شیء تنظیمات هم چاپ نمی‌شود.
+
+نمونهٔ زیر فقط تنظیم عمومی است و مقدار کلید ندارد:
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+OLLAMA_MODEL=gemma4:31b
+OLLAMA_BASE_URL=https://ollama.com/v1
+AGENT_TIMEOUT=60
+\end{Verbatim}
+\end{LTR}
+
+اکنون بررسی محلی و سپس اجرای تعاملی را انجام دهید:
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe run_agent.py --check
+.\.venv\Scripts\python.exe run_agent.py
+\end{Verbatim}
+\end{LTR}
+
+بررسی محلی مدل، نشانی سرویس، پوشهٔ کاری، مسیر داده و تعداد رکوردها را نشان می‌دهد. هیچ درخواست 
+\lr{Ollama}
+ نمی‌فرستد؛ پس فقط آماده بودن تنظیم محلی را ثابت می‌کند. اجرای نخست ممکن است 
+\lr{memory.json}
+ و 
+\lr{tasks.json}
+ قدیمی را در 
+\lr{data}
+ کپی کند. اجرای بعدی دادهٔ جدید را با نسخهٔ قدیمی جایگزین نمی‌کند. شناسهٔ کارهای قبلی حفظ و شمارندهٔ 
+\lr{next\_id}
+ اضافه می‌شود تا شناسهٔ آینده تکرار نشود.
+
+برای کار روی یک پروژهٔ دیگر، پوشهٔ موجود آن را بدهید. ابزار فایل در همان پوشه محدود می‌شود، ولی حافظهٔ شخصی همچنان در 
+\lr{data}
+ همین پروژهٔ ایجنت است.
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe run_agent.py --workspace 'E:\projects\demo'
+\end{Verbatim}
+\end{LTR}
+
+برای اجرای محلی، 
+\lr{Ollama}
+ را جداگانه نصب و مدل مناسب توان سیستم انتخاب کنید. نمونهٔ دستورها در ادامه است. اگر برنامهٔ دسکتاپ 
+\lr{Ollama}
+ سرور را اجرا کرده، همان کافی است؛ در غیر این صورت سرور را در ترمینال جدا اجرا کنید. این‌ها دستور راه‌اندازی هستند؛ در این جلسه مدل محلی دانلود و اجرا نشده است.
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+ollama pull qwen3:8b
+ollama serve
+\end{Verbatim}
+\end{LTR}
+
+\begin{LTR}
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+OLLAMA_BASE_URL=http://localhost:11434/v1
+OLLAMA_MODEL=qwen3:8b
+\end{Verbatim}
+\end{LTR}
+
+این مسیر کلید 
+\lr{cloud}
+ نمی‌خواهد. حتی اگر کلید ابری در .
+\lr{env}
+ باقی باشد، مفسر برای سرور محلی فقط مقدار نمایشی 
+\lr{ollama}
+ می‌فرستد. مدل کوچک ممکن است دستور ابزار را ضعیف‌تر دنبال کند؛ اول گفتگو و یک کار نمونه را امتحان کنید. نشانی‌های مجاز 
+\lr{API}
+ فقط نشانی دقیق 
+\lr{Ollama cloud}
+ یا نشانی 
+\lr{loopback}
+ با مسیر /
+\lr{v1}
+ هستند. نشانی اینترنتی دلخواه پذیرفته نمی‌شود تا کلید به سرویس اشتباه نرود.
+
+\cite{ollama-api,ollama-pricing}

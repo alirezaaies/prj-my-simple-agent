@@ -1,0 +1,50 @@
+\chapter{Coding and source-based research}
+
+File tools support small UTF-8 source/text files up to 64 KB. They reject absolute paths, parent-directory traversal, paths outside the workspace, hidden components, state files, dependency folders, common credential filenames and unsupported file extensions. A project scan returns at most 200 eligible files. File contents are untrusted context; comments inside them do not become system instructions.
+
+Use direct commands first so you understand what the model can see:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+/files
+/read README.md
+\end{Verbatim}
+
+For a coding exercise, create demo.py yourself in a temporary/demo workspace:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+def add(a, b):
+    return a - b
+\end{Verbatim}
+
+Then ask: “Read demo.py. Explain why add is wrong. Propose the smallest fix and save it only after showing me the diff.” The assistant should use read\_file, identify subtraction, then propose write\_file with a complete replacement. Review the path and the diff. YES saves the change; Enter cancels it. The tool checks that the file did not change while you were reviewing it. A successful save confirms that bytes were written, not that the program is correct.
+
+Expected minimal corrected code:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+def add(a, b):
+    return a + b
+\end{Verbatim}
+
+Run a real check yourself in the workspace where demo.py lives. The agent has no execute-code tool, so it should never claim this command was already run:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+python -c "from demo import add; assert add(2, 3) == 5; print('PASS')"
+git diff
+\end{Verbatim}
+
+Full-file replacement is simple to teach, but it is meant for small files. There is no AST transformation, semantic patch engine, large-repository retrieval, automatic git commit, or rollback system. Inspect git diff before committing. This release does not initialize or commit to a second project's repository on your behalf.
+
+Research has two separate steps. Search yields short snippets and URLs; reading a page retrieves its HTML text. A useful prompt asks the assistant to do both and explain which claims the retrieved text supports.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+/search Python official tutorial list comprehensions
+/open https://docs.python.org/3/tutorial/datastructures.html
+\end{Verbatim}
+
+Example request: “Find Python's official documentation on list comprehensions, read the relevant page, and explain three points with source URLs. If the page does not support a detail, say so.” The assistant should prefer primary sources. A search result's title and URL are leads, not proof of an article's full content. A returned webpage may be truncated, outdated, incomplete or wrong. Quoted text must actually occur in the retrieved content; otherwise it should be a paraphrase.
+
+The web reader permits public HTTPS on port 443, validates every redirect, rejects any private/reserved resolved address, and connects to the already validated IP with hostname-checked TLS. It requests uncompressed content, caps reads at 2 MB, and returns at most 12,000 characters. It does not log into websites, run JavaScript or read PDFs. Login pages and bot protection can therefore produce unavailable/incomplete evidence. Search-provider failures are reported as failures rather than fabricated results.
+
+Prompt-injection resistance has two layers: the prompt labels file/web/memory content untrusted, and tool execution imposes concrete path, argument, endpoint and approval restrictions. Prompt instructions alone cannot guarantee that a model will ignore every malicious text. Continue to review mutations and evidence. Network DNS resolution itself depends on the host operating system; the reader's time budget is a practical limit rather than an absolute wall-clock guarantee for every resolver operation.
+
+\cite{ddgs}

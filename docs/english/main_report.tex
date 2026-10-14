@@ -1,0 +1,20 @@
+% !TeX program = xelatex
+\documentclass[11pt,a4paper,oneside]{report}
+\input{config}
+\begin{document}
+\input{formatter}
+\setcounter{page}{2}
+\tableofcontents
+\input{chapters/01_scope}
+\input{chapters/02_setup}
+\input{chapters/03_usage}
+\input{chapters/04_coding_research}
+\input{chapters/05_implementation}
+\input{chapters/06_verification}
+\input{chapters/07_capabilities}
+\appendix
+\input{chapters/08_source}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\input{chapters/09_contact}
+\end{document}

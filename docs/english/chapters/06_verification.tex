@@ -1,0 +1,31 @@
+\chapter{Verification and troubleshooting}
+
+The offline suite uses unittest, temporary directories, fake credentials and a fake model. It never needs the real API key, changes the user's JSON files or makes web requests. Run it whenever changing storage, tool dispatch, path handling, or the model loop:
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+\end{Verbatim}
+
+The final suite contains 51 tests: 50 passed and one real symlink creation test was skipped because Windows did not permit creation. A mocked resolved-path test still checks the escape rejection logic. Coverage includes configuration aliases, local dummy authentication, secret redaction, state schema/corruption, backups, lock contention, task ID stability, approval cancellation, file concurrency, invalid tool arguments, failed API continuation and budgeted history. New regression cases reproduce the HTML-then-empty-response interruption, complete CSS/JS without a second user prompt, reject missing deliverables, recover truncated output, and stop on cancellation or stalled progress.
+
+The separate live smoke test consumes a small amount of API quota. It uses a temporary empty workspace and synthetic state, automatically approving changes only inside that sandbox. It tests cloud chat, a real task-tool roundtrip, and reading/fixing an example add function. The real user's facts, tasks and project source are not sent by this script.
+
+\begin{Verbatim}[breaklines,breakanywhere,fontsize=\small]
+.\.venv\Scripts\python.exe scripts\smoke_test.py --live
+\end{Verbatim}
+
+On 2026-10-14, all three cloud scenarios passed. Separate live checks of public-page retrieval and web search also returned evidence URLs. These observations are not proof that every future answer, citation or model-generated patch is correct. Local inference, arbitrary login sites, universal secret detection and symlink behavior on this restricted Windows account were not fully verified.
+
+The continuous-task integration test also passed from one prompt: all three portfolio files were created, the CSS/JS references matched them, the HTML was read back and finish\_work confirmed completion. It uses a temporary folder, not the user's portfolio. Run it explicitly with scripts/smoke\_test.py --live --portfolio. This verifies the tested workflow and artifact references, not browser rendering or JavaScript execution.
+
+If Python says a package is missing, verify that installation and execution use the same .venv interpreter. Re-run pip install with that explicit path. If local configuration fails, inspect variable names, URL and timeout in .env without printing the values. An authentication failure requires checking or replacing the Ollama key through the account locally, not sending it to a chat.
+
+If the model name is unavailable or the API returns an HTTP status, check the account's available cloud models and OLLAMA\_MODEL. A rate/credit limit can be handled by waiting for the account allowance or using an installed local model. Connection failures require checking network, VPN, TLS trust or the local server. Do not disable TLS certificate validation as a workaround.
+
+If the response times out after an action, check actual state before retrying. If a webpage is unavailable, try a different primary source or use the returned snippets cautiously; do not label unavailable content as verified. If a code file is blocked, confirm its relative path and that it is a supported small UTF-8 source file; moving secrets into a supported extension is not a solution.
+
+For invalid state, close every running agent and open the active data JSON plus its .json.bak in the editor. Preserve the damaged file under another local name, then copy a valid backup to the active filename and restart. Restore only the affected kind so unrelated tasks/facts remain unchanged. If a stale data/.lock remains after a forced crash, remove it only after confirming no agent instance is running. A normal exit cleans up the lock.
+
+Commands using YES are deliberately case-sensitive. Enter or other answers cancel. Unknown slash commands show /help instead of going to the model. Direct task IDs must be positive integers. A source write rejected because the file changed during approval should be reread and proposed again, preserving the other edit.
+
+\cite{python-unittest}
